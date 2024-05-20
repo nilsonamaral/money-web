@@ -4,48 +4,49 @@ import "./home.css"
 import icons from "../../styles/icons.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api.js"
 
 // function Home() {}
 const Home = () => {
-
-    let dados = [
-        {id: 1, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-carro.png", categoria: "Carro", descricao: "Pagamento IPVA", valor: 2500},
-        {id: 2, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-casa.png", categoria: "Casa", descricao: "Condomínio", valor: 620},
-        {id: 3, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-lazer.png", categoria: "Lazer", descricao: "Sorvete no parque", valor: 17.50},
-        {id: 4, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-mercado.png", categoria: "Mercado", descricao: "Compras Walmart", valor: 375},
-        {id: 5, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-treinamento.png", categoria: "Educação", descricao: "Faculdade", valor: 490},
-        {id: 6, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-viagem.png", categoria: "Viagem", descricao: "Passagem Aérea", valor: 610},
-        {id: 7, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-mercado.png", categoria: "Mercado", descricao: "Compras Churrasco", valor: 144.30},
-        {id: 8, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-viagem.png", categoria: "Viagem", descricao: "Hotel", valor: 330}
-    ];
-
-    let dadosFiltrados = [
-        {id: 1, icon: "https://jornadajs-devpoint.s3.amazonaws.com/icon-carro.png", categoria: "Carro", descricao: "Pagamento IPVA", valor: 2500},
-    ];
 
     const navigate = useNavigate();
     const [despesas, setDespesas] = useState([]);
     const [total, setTotal] = useState(0)
 
-    const listarDespesas = (filtro) => {
-        if (filtro)
-            dados = dadosFiltrados
+    const listarDespesas = async (busca) => {
 
-        let soma = 0
-        for (var i= 0; i < dados.length; i++) {
-            soma = soma + dados[i].valor;
+        try {
+            // Acessar dados na API
+            const response = await api.get("despesas/", { params: 
+                {filtro: busca}
+            })
+            
+
+            setDespesas(response.data)
+            
+            let soma = 0
+            for (var i= 0; i < response.data.length; i++) {
+                soma = soma + Number(response.data[i].valor);
+            }
+            setTotal(soma)
+        } catch (error) {
+            alert("Erro ao buscar dados")
+            console.log(error)
         }
-
-        setTotal(soma)
-        setDespesas(dados);
     }
 
     const OpenDespesa = (id) => {
         navigate("/despesa/" + id)
     }
 
-    const DeleteDespesa = (id) => {
-        alert(id)
+    const DeleteDespesa = async (id) => {
+        try {
+            await api.delete("/despesas/" + id)
+            listarDespesas()
+        } catch (error) {
+            alert("Erro ao excluir despesa")
+            console.log(error)
+        }
     }
 
     useEffect(()=>{
@@ -78,8 +79,8 @@ const Home = () => {
                                 return <tr>
                                 <td>{desp.id}</td>
                                 <td>{desp.descricao}</td>
-                                <td>{desp.categoria}</td>
-                                <td className="text-right">R$ {desp.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                                <td><div><img className="icon-table" src={desp.categoriaDetalhe.icon} /> <span className="ml-10">{desp.categoria}</span></div></td>
+                                <td className="text-right">R$ {Number(desp.valor).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                                 <td className="text-right">
                                     <button className="btn btn-blue" onClick={() => OpenDespesa(desp.id)}
                                        ><img className="icon-sm" src={icons.edit} alt="editar" /></button>
@@ -93,6 +94,12 @@ const Home = () => {
                         
                     </tbody>
                 </table>
+                        {
+                            despesas.length == 0 && <div className="empty-despesas">
+                                <img src={icons.empty} className="empty-icon" />
+                                <p>Nenhuma despesa encontrada</p>
+                            </div>
+                        }
             </div>
         </div>
     </>

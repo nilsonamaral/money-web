@@ -3,6 +3,7 @@ import Navbar from "../../components/navbar/navbar.jsx";
 import "./cad-despesa.css"
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "../../services/api.js";
 
 // function CadDespesa() {}
 const CadDespesa = () => {
@@ -13,15 +14,40 @@ const CadDespesa = () => {
     const [descricao, setDescricao] = useState("")
     const [categoria, setCategoria] = useState("")
 
-    const SalvarDados = () => {
-        navigate("/")
+    const SalvarDados = async () => {
+        try {
+            if (idUrl != "add") {
+                await api.put("despesas/" + idUrl, {
+                    descricao,
+                    categoria,
+                    valor
+                })
+            } else {
+                await api.post("despesas", {
+                    descricao,
+                    categoria,
+                    valor
+                })
+            }
+            navigate("/")
+        } catch (error) {
+            alert("")
+            console.log(error)
+        }
     }
 
-    const GetDadosDespesa = (id) => {
-        // FAZ O GET NA API...
-        setValor(200)
-        setDescricao("compras no Mercado")
-        setCategoria("Carro")
+    const GetDadosDespesa = async (id) => {
+        try {
+            // FAZ O GET NA API...
+            const response = await api.get("despesas/" + id)
+
+            setValor(response.data.valor)
+            setDescricao(response.data.descricao)
+            setCategoria(response.data.categoria)
+        } catch (error) {
+            alert("Erro ao editar dados")
+            console.log(error)
+        }
     }
 
     useEffect(() => {

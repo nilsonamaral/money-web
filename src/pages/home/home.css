@@ -14,3 +14,20 @@
     margin-top: 30px;
     
 }
+
+.empty-despesas {
+    width: 100%;
+    padding: 50px;
+    align-items: center;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 20%;
+    padding-bottom: 10px;
+}
+
+.icon-table {
+    width: 33px;
+    height: 33px;
+}

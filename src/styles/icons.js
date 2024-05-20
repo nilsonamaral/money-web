@@ -5,7 +5,8 @@ import edit from "../assets/edit.png";
 import logo from "../assets/logo.png";
 import add from "../assets/add.png";
 import logout from "../assets/logout.png";
+import empty from "../assets/empty.png"
 
 
 
-export default {home, config, remove, edit, logo, add, logout};
+export default {home, config, remove, edit, logo, add, logout, empty};
